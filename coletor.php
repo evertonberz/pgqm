@@ -1,6 +1,6 @@
 <?php
 /*
- * PGQM (PostgreSQL Query Monitor)
+ * PGQM (PostgreSQL Query Mailer)
  * Autor: Everton Luís Berz <everton.berz@gmail.com>
  *
  * Observação: a query fica truncada por causa do parâmetro track_activity_query_size do PostgreSQl. O padrão é 1024.

@@ -1,7 +1,7 @@
 pgqm
 ====
 
-PostgreSQL Query Monitor
+PostgreSQL Query Mailer
 
 
 Script de monitoramento de queries (PGQM), com envio de alerta por e-mail caso a duração das queries excedam determinada tolerância.
