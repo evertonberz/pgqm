@@ -1,0 +1,16 @@
+[geral]
+tolerancia=8   ; qualquer query com duração maior que a tolerância representa crise
+numeroDeQueriesAcimaDaTolerancia=3
+numeroDeQueriesAcimaDaToleranciaParaAlerta=12
+duracaoDaCriseParaAlerta=15  ; quanto tempo permanece em crise para daí emitir o alerta
+periodoDeRepeticaoNormal=3
+periodoDeRepeticaoEmCrise=1  ; no minimo 1, caso contrario o lote pode ficar com mesmo id
+tempoDeEsperaPorAcao=600
+destinatarioDoEmailDeAlerta=""
+
+[bdPostgresql]
+host=
+port=5432
+dbname=template1
+user=
+password=
