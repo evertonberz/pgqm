@@ -20,13 +20,16 @@ Para rodar:
 - execute o rodar.sh
 
 ====
-
-Configurações do pgqm.ini:
+Configurações do pgqm.ini
 
 Alguns "conceitos" utilizados:
+
 Query lenta: que demoram mais tempo que a tolerância (especificada na diretiva "tolerancia" do arquivo .ini)
+
 Envio de alerta por e-mail: condição 1 *e* condição 2 devem ser atendidas.
+
 Crise: queries lentas (acima da tolerancia) estão permanecendo ativas no servidor
+
 
 _numeroDeQueriesAcimaDaTolerancia_
 
