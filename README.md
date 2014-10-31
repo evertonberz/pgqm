@@ -13,6 +13,12 @@ Exemplo: quero visualizar quais eram as queries ativas no banco de dados, no mom
 
 O script armazena em um banco sqlite um snapshot do pg_stat_activity dos momentos de crise.
 
+Dependências:
+php-cli
+php-common
+php-pgsql
+php-sqlite3
+
 Para rodar:
 - renomeie o pgqm.ini-dist para pgqm.ini
 - configure o pgqm.ini
