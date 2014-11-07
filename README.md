@@ -1,10 +1,10 @@
 pgqm
 ====
 
-PostgreSQL Query Mailer
+PostgreSQL Query Monitor
+Licença: GPL v2.0
 
-
-Script de monitoramento de queries (PGQM), com envio de alerta por e-mail caso a duração das queries excedam determinada tolerância.
+Script de monitoramento de queries com envio de alerta por e-mail caso a duração das queries excedam determinada tolerância.
 
 Monitora queries lentas ativas de acordo com tolerância configurada no arquivo INI.
 Pode ser configurada a tolerância de duração das queries e a quantidade de queries lentas ativas.
