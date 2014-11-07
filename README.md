@@ -2,6 +2,7 @@ pgqm
 ====
 
 PostgreSQL Query Monitor
+
 Licença: GPL v2.0
 
 Script de monitoramento de queries com envio de alerta por e-mail caso a duração das queries excedam determinada tolerância.
