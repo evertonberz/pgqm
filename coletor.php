@@ -1,8 +1,10 @@
 <?php
 /*
- * Autor: Everton Luís Berz <everton.berz@gmail.com>
+ * PGQM (PostgreSQL Query Monitor)
+ * Autor: Everton Luís Berz <everton.berz@trt4.jus.br>
  *
  * Observação: a query fica truncada por causa do parâmetro track_activity_query_size do PostgreSQl. O padrão é 1024.
+ *
  */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -33,7 +35,7 @@ $conexaoSqlite = new SQLite3('pgqm.db');
 //$conexaoSqlite->exec("DROP TABLE pgqm");
 if ($conexaoSqlite->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='pgqm'") == null) {  
   $conexaoSqlite->exec("CREATE TABLE pgqm (mtimestamp integer, datname text, pid integer, usename text, client_addr text, query_start integer, 
-    timediff integer, waiting integer, state text, query text, tolerancia integer)");
+    timediff integer, waiting integer, state text, query text, tolerancia integer, application_name text)");
 }
 
 $filtroStall = " and age(now(), query_start) > cast($1 as interval)";
@@ -46,7 +48,8 @@ $sqlMonitor = "select
     trunc(extract(epoch from age(now(), query_start))) as timediff, 
     waiting, 
     state,
-    query     
+    query,
+    application_name     
 	from pg_stat_activity 
 	where   
    pid <> pg_backend_pid() and 
@@ -58,8 +61,8 @@ $sqlMonitorSemFiltro = str_replace("###filtroStall###", "", $sqlMonitor);
 $pSelFiltrado = pg_prepare($conexaoPg, "monitorFiltrado", $sqlMonitorFiltrado);
 $pSelSemFiltro = pg_prepare($conexaoPg, "monitorSemFiltro", $sqlMonitorSemFiltro);
 
-$pIns = $conexaoSqlite->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, tolerancia) 
-	VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :waiting, :state, :query, :tolerancia)");
+$pIns = $conexaoSqlite->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, tolerancia, application_name) 
+	VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :waiting, :state, :query, :tolerancia, :application_name)");
 
 $identificadorDoLoteDeColeta = time();
 $identificadorDoLoteDaPrimeiraColetaDaCrise=$identificadorDoLoteDeColeta;
@@ -89,6 +92,7 @@ while (true) {
       $pIns->bindValue(':state', $linha["state"], SQLITE3_TEXT);
       $pIns->bindValue(':query', $linha["query"], SQLITE3_TEXT);
       $pIns->bindValue(':tolerancia', TOLERANCIA, SQLITE3_INTEGER);
+      $pIns->bindValue(':application_name', $linha["application_name"], SQLITE3_TEXT);
       $pIns->execute();
   	}
 
