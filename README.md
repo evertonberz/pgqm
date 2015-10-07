@@ -20,6 +20,8 @@ Dependências:
 - php-pgsql
 - php-sqlite3
 
+Testado com sucesso na versão PHP 5.3.3 (cli) (built: Jul 17 2014 04:36:07)
+
 Para rodar:
 - renomeie o pgqm.ini-dist para pgqm.ini
 - configure o pgqm.ini
