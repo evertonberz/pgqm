@@ -98,9 +98,7 @@ while (true) {
 
     $duracaoDaCrise= ($identificadorDoLoteDeColeta-$identificadorDoLoteDaPrimeiraColetaDaCrise);
     if ($registrosEncontrados >= NUMERO_DE_QUERIES_ACIMA_DA_TOLERANCIA_PARA_ALERTA and 
-        $duracaoDaCrise > DURACAO_DA_CRISE_PARA_ALERTA and
-        (time()-$timestampDaUltimaMensagemEnviada >= TEMPO_DE_ESPERA_POR_ACAO or 
-         $timestampDaUltimaMensagemEnviada == null)) {
+        $duracaoDaCrise > DURACAO_DA_CRISE_PARA_ALERTA) {
       print(PHP_EOL);
       $mensagem = "PGQM (PostgreSQL Query Monitor)".PHP_EOL.
                    PHP_EOL.
@@ -130,14 +128,21 @@ while (true) {
       $pSelMsg = $conexaoSqlite->query($sql);
       
       while ($linhaDetalhe = $pSelMsg->fetchArray()) {
-        $comentario = strtok($linhaDetalhe["query"], " ")." executando há mais de $linhaDetalhe[timediff] segundos";
+        $comentario = "\"".substr($linhaDetalhe["query"], 0, 30)."\" executando há mais de $linhaDetalhe[timediff] segundos";
         $mensagem .= $linhaDetalhe["kill"]."  -- ".$comentario.PHP_EOL;
       }
       $mensagem .= PHP_EOL."FIM!";
-
-      $timestampDaUltimaMensagemEnviada=time();                    
       print($mensagem.PHP_EOL.PHP_EOL.PHP_EOL);
-      mail(DESTINATARIO_DO_EMAIL_DE_ALERTA, "PGQM Alerta", $mensagem);
+
+      if (time()-$timestampDaUltimaMensagemEnviada >= TEMPO_DE_ESPERA_POR_ACAO or 
+         $timestampDaUltimaMensagemEnviada == null) {
+        // Only send emails between 4am and 1am
+        if (date('G') < 2 or date('G') > 3) {
+          mail(DESTINATARIO_DO_EMAIL_DE_ALERTA, "PGQM Alerta", $mensagem);
+          $timestampDaUltimaMensagemEnviada=time();
+        }
+      }
+
     }
 
   } else {    
