@@ -8,6 +8,10 @@ periodoDeRepeticaoEmCrise=1  ; no minimo 1, caso contrario o lote pode ficar com
 tempoDeEsperaPorAcao=600
 destinatarioDoEmailDeAlerta=""
 
+[acao]
+comando="" ; comando a ser executado para cada servidor, podeem ser utilizadas as máscaras ###servidor### e ###identificador### 
+servidores="" ; lista de servidores a ser executada a acao, use vírgula para separar mais de um
+
 [bdPostgresql]
 host=
 port=5432
