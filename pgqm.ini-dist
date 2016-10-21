@@ -1,18 +1,21 @@
-[geral]
-tolerancia=8   ; qualquer query com duração maior que a tolerância representa crise
-numeroDeQueriesAcimaDaTolerancia=3
-numeroDeQueriesAcimaDaToleranciaParaAlerta=12
-duracaoDaCriseParaAlerta=15  ; quanto tempo permanece em crise para daí emitir o alerta
-periodoDeRepeticaoNormal=3
-periodoDeRepeticaoEmCrise=1  ; no minimo 1, caso contrario o lote pode ficar com mesmo id
-tempoDeEsperaPorAcao=600
-destinatarioDoEmailDeAlerta=""
+[general]
+tolerance=8   ; qualquer query com duração maior que a tolerância representa crise
+queryCountAboveTolerance=3
+queryCountAboveToleranceAlert=12
+crisisDurationForAlert=15  ; quanto tempo permanece em crise para daí emitir o alerta
+defaultIterationRange=3
+iterationRangeWhileCrisis=1  ; no minimo 1, caso contrario o lote pode ficar com mesmo id
+waitTimeForAction=600
+alertMailRecipient=""
+sqliteDbPath="/var/lib/pgqm.db"
+sqliteDbMaxSize=999999999 ; em bytes
+tarPath="/bin/tar"
 
-[acao]
-comando="" ; comando a ser executado para cada servidor, podeem ser utilizadas as máscaras ###servidor### e ###identificador### 
-servidores="" ; lista de servidores a ser executada a acao, use vírgula para separar mais de um
+[trigger]
+servers=""  ; lista de servidores a ser executada a acao, use vírgula para separar mais de um
+command="" ; comando a ser executado para cada servidor, podeem ser utilizadas as máscaras ###servidor### e 
 
-[bdPostgresql]
+[postgresqlDb]
 host=
 port=5432
 dbname=template1
