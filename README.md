@@ -5,41 +5,40 @@ PostgreSQL Query Monitor
 
 Licença: GPL v2.0
 
-Script de monitoramento de queries com envio de alerta por e-mail caso a duração das queries excedam determinada tolerância.
+Query monitoring script for PostgreSQL. It sends alert mails in case the query duration exceed some threshold.
 
-Monitora queries lentas ativas de acordo com tolerância configurada no arquivo INI.
-Pode ser configurada a tolerância de duração das queries e a quantidade de queries lentas ativas.
+This script monitors active slow queries based on the INI file threshold parameter.
+You can set the query duration and the slow queries count threshold.
+For instance, I want to list which queries were active in the database, at the time that 5 slow queries were running for more than 8 seconds.
 
-Exemplo: quero visualizar quais eram as queries ativas no banco de dados, no momento em que ficaram acumuladas 5 queries com duração de mais de 8 segundos.
+The script stores a pg_stat_activity snapshot in a SQLite database.
 
-O script armazena em um banco sqlite um snapshot do pg_stat_activity dos momentos de crise.
-
-Dependências:
+Dependences:
 - php-cli
 - php-common
 - php-pgsql
 - php-sqlite3
 
-Testado com sucesso na versão PHP 5.3.3 (cli) (built: Jul 17 2014 04:36:07)
+Tested in PHP 5 and PHP 7.
 
-Para rodar:
-- renomeie o pgqm.ini-dist para pgqm.ini
-- configure o pgqm.ini
-- configurar o rodar.sh
-- execute o rodar.sh
+Instructions:
+- rename pgqm.ini-dist to pgqm.ini
+- configure pgqm.ini
+- configure run.sh
+- run run.sh
 
 ====
-Sobre as configurações do INI
+About the INI file
 
-Alguns "conceitos" utilizados:
-- Query lenta: que demoram mais tempo que a tolerância (especificada na diretiva "tolerancia" do arquivo .ini)
-- Envio de alerta por e-mail: condição 1 *e* condição 2 devem ser atendidas.
-- Crise: queries lentas (acima da tolerancia) estão permanecendo ativas no servidor
+Some concepts:
+- Slow query: a query that exceeds the specified time threshold (the duration is defined in the "threshold" directive)
+- Crisis: slow queries running for a long time in the database
+- Alert mail: condition 1 *and* condition 2 must be true (see below)
 
-Configurações:
-- _numeroDeQueriesAcimaDaTolerancia_: se o número de queries lentas ultrapassar este limite, então o PGQM exibirá *na tela* um aviso e gravará no bd sqlite um snapshot da pg_stat_activity.
-- _numeroDeQueriesAcimaDaToleranciaParaAlerta_: se o número de queries lentas ultrapassar este limite, então a condição 1 para alerta por e-mail é ativada
-- _duracaoDaCriseParaAlerta_: se existem queries lentas ativas há mais de <duracaoDaCriseParaAlerta> segundos, então condição 2 do alerta por e-mail é ativada
-- _periodoDeRepeticaoNormal_: a busca por queries lentas no pg_stat_activity ocorrerá a cada <periodoDeRepeticaoNormal> segundos
-- _periodoDeRepeticaoEmCrise_: se está em crise, a busca por queries lentas no pg_stat_activity ocorrerá a cada <periodoDeRepeticaoEmCrise> segundos
-- _tempoDeEsperaPorAcao_: o envio de alerta por e-mail ficara desativado por <tempoDeEsperaPorAcao> após o primeiro alerta (é usado para não lotar a caixa de e-mails)
+Directives:
+- _queryCountAboveThreshold_: if slow query count reach this limit, then PGQM shows a warning and stores a pg_stat_activty snapshot
+- _queryCountAboveThresholdAlert_: if slow query count reach this limit, then condition 1 for the alert mail is activated
+- _crisisDurationForAlert_: if there are active slow queries for more than <crisisDurationForAlert> seconds, then condition 2 for the alert mail is activated
+- _defaultIterationRange_: fetch slow queries in pg_stat_activity every <defaultIterationRange> seconds
+- _iterationRangeWhileCrisis_: if the crisis flag is active, fetch slow queries in pg_stat_activity every <iterationRangeWhileCrisis> seconds
+- _waitTimeForAction_: the alert mail will be suspended for <waitTimeForAction> after the first alert (nobody wants spam)

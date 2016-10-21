@@ -15,9 +15,9 @@ print("Starting PGQM (PostgreSQL Query Monitor)".PHP_EOL);
 
 $ini = parse_ini_file("pgqm.ini", true);
 $infoPostgresqlDb = $ini["postgresqlDb"];
-define("TOLERANCE", $ini["general"]["tolerance"]);
-define("QUERY_COUNT_ABOVE_TOLERANCE", $ini["general"]["queryCountAboveTolerance"]);
-define("QUERY_COUNT_ABOVE_TOLERANCE_ALERT", $ini["general"]["queryCountAboveToleranceAlert"]);
+define("QUERY_DURATION_THRESHOLD", $ini["general"]["queryDurationThreshold"]);
+define("QUERY_COUNT_ABOVE_THRESHOLD", $ini["general"]["queryCountAboveThreshold"]);
+define("QUERY_COUNT_ABOVE_THRESHOLD_ALERT", $ini["general"]["queryCountAboveThresholdAlert"]);
 define("DEFAULT_ITERATION_RANGE", $ini["general"]["defaultIterationRange"]);
 define("ITERATION_RANGE_WHILE_CRISIS", $ini["general"]["iterationRangeWhileCrisis"]);
 define("CRISIS_DURATION_FOR_ALERT", $ini["general"]["crisisDurationForAlert"]);
@@ -89,12 +89,12 @@ while (true) {  // postgresql connect loop (for reconnections)
       break; // exit internal loop and return to postgresql connection loop
     }
 
-    $resMonitorFiltered = pg_execute($pgConnection, "monitorFiltered", array(TOLERANCE." seconds"));
+    $resMonitorFiltered = pg_execute($pgConnection, "monitorFiltered", array(QUERY_DURATION_THRESHOLD." seconds"));
 
     $resMonitorNoFilter = pg_execute($pgConnection, "monitorNoFilter", array());
     $recordCount = pg_num_rows($resMonitorFiltered);
     $batchId = time();
-    if ($recordCount >= QUERY_COUNT_ABOVE_TOLERANCE) {
+    if ($recordCount >= QUERY_COUNT_ABOVE_THRESHOLD) {
       $iterationRange=ITERATION_RANGE_WHILE_CRISIS;
       print(PHP_EOL."[".date("d-m-Y H:i:s", $batchId)."] $recordCount queries lentas encontradas ($batchId). Guardando snapshot (".pg_num_rows($resMonitorNoFilter)." registros)... ");    
 
@@ -112,13 +112,13 @@ while (true) {  // postgresql connect loop (for reconnections)
           $pInsertSqlite->bindValue(':waiting', 0, SQLITE3_INTEGER);
         $pInsertSqlite->bindValue(':state', $line["state"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':query', $line["query"], SQLITE3_TEXT);
-        $pInsertSqlite->bindValue(':tolerancia', TOLERANCE, SQLITE3_INTEGER);
+        $pInsertSqlite->bindValue(':threshold', QUERY_DURATION_THRESHOLD, SQLITE3_INTEGER);
         $pInsertSqlite->bindValue(':application_name', $line["application_name"], SQLITE3_TEXT);
         $pInsertSqlite->execute();
       }
 
       $crisisDuration= ($batchId-$batchIdFromFirstDetectionOfTheDefect);
-      if ($recordCount >= QUERY_COUNT_ABOVE_TOLERANCE_ALERT and 
+      if ($recordCount >= QUERY_COUNT_ABOVE_THRESHOLD_ALERT and 
           $crisisDuration > CRISIS_DURATION_FOR_ALERT) {
         print(PHP_EOL);
         $message = "PGQM (PostgreSQL Query Monitor)".PHP_EOL.
@@ -132,9 +132,9 @@ while (true) {  // postgresql connect loop (for reconnections)
                     "Duração da crise: {$crisisDuration}s (por quanto tempo as queries lentas permanecem ativas)".PHP_EOL.
                     PHP_EOL.
                     "Configuração atual:".PHP_EOL.
-                    "Tolerância: ".TOLERANCE."s (queries com duração maior que essa são consideradas lentas)".PHP_EOL.
-                    "Número de queries lentas: ".QUERY_COUNT_ABOVE_TOLERANCE.PHP_EOL.
-                    "Número de queries lentas para emitir alerta por e-mail: ".QUERY_COUNT_ABOVE_TOLERANCE_ALERT.PHP_EOL.
+                    "Tolerância: ".QUERY_DURATION_THRESHOLD."s (queries com duração maior que essa são consideradas lentas)".PHP_EOL.
+                    "Número de queries lentas: ".QUERY_COUNT_ABOVE_THRESHOLD.PHP_EOL.
+                    "Número de queries lentas para emitir alerta por e-mail: ".QUERY_COUNT_ABOVE_THRESHOLD_ALERT.PHP_EOL.
                     "Duração da crise: ".CRISIS_DURATION_FOR_ALERT."s (quanto tempo permanece em crise para daí enviar este alerta)".PHP_EOL.
                     PHP_EOL.
                     "Esta mensagem não será mais enviada nos próximos ".WAIT_TIME_FOR_ACTION." segundos.".PHP_EOL.
@@ -145,7 +145,7 @@ while (true) {  // postgresql connect loop (for reconnections)
         $sql = "select query, timediff, pid, application_name
                 from pgqm 
                 where mtimestamp = $batchId 
-                and timediff > ".TOLERANCE." and
+                and timediff > ".QUERY_DURATION_THRESHOLD." and
                   (state = 'active' or state = 'idle in transaction' or waiting = 1) 
                 order by timediff desc";
         $pSelMsg = $sqliteConnection->query($sql);
@@ -217,10 +217,10 @@ function connect_sqlite_database() {
   if ($sqliteConnection->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='pgqm'") == null) {  
     print("  New database detected. Creating table...".PHP_EOL);
     $sqliteConnection->exec("CREATE TABLE pgqm (mtimestamp integer, datname text, pid integer, usename text, client_addr text, query_start integer, 
-      timediff integer, waiting integer, state text, query text, tolerancia integer, application_name text)");
+      timediff integer, waiting integer, state text, query text, threshold integer, application_name text)");
   }
-  $pInsertSqlite = $sqliteConnection->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, tolerancia, application_name) 
-    VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :waiting, :state, :query, :tolerancia, :application_name)");
+  $pInsertSqlite = $sqliteConnection->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, threshold, application_name) 
+    VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :waiting, :state, :query, :threshold, :application_name)");
 }
 
 function check_sqlite_database_size() {
