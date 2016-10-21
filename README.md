@@ -5,9 +5,9 @@ PostgreSQL Query Monitor
 
 Licença: GPL v2.0
 
-Query monitoring script for PostgreSQL. It sends alert mails in case the query duration exceed some threshold.
+Query monitoring script for PostgreSQL. It sends alert mails in case the query duration exceeds some threshold.
 
-This script monitors active slow queries based on the INI file threshold parameter.
+This script monitors active slow queries based on the INI file parameters.
 You can set the query duration and the slow queries count threshold.
 For instance, I want to list which queries were active in the database, at the time that 5 slow queries were running for more than 8 seconds.
 
