@@ -13,7 +13,7 @@ For instance, I want to list which queries were active in the database, at the t
 
 The script stores a pg_stat_activity snapshot in a SQLite database.
 
-Dependences:
+Dependencies:
 - php-cli
 - php-common
 - php-pgsql
