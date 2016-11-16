@@ -51,7 +51,7 @@ while (true) {  // postgresql connect loop (for reconnections)
   }
 
 
-  $stallFilter = "and (state = 'active' or waiting = true) and age(now(), query_start) > cast($1 as interval)";
+  $stallFilter = "and (state = 'active' or wait_event is not null) and age(now(), query_start) > cast($1 as interval)";
   $sqlMonitor = "select 
       datname, 
       pid, 
@@ -59,7 +59,7 @@ while (true) {  // postgresql connect loop (for reconnections)
       usename, 
       extract(epoch from query_start) as query_start, 
       trunc(extract(epoch from age(now(), query_start))) as timediff, 
-      waiting, 
+      wait_event,
       state,
       query,
       application_name     
@@ -106,10 +106,10 @@ while (true) {  // postgresql connect loop (for reconnections)
         $pInsertSqlite->bindValue(':client_addr', $line["client_addr"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':query_start', $line["query_start"], SQLITE3_INTEGER);
         $pInsertSqlite->bindValue(':timediff', $line["timediff"], SQLITE3_INTEGER);
-        if ($line["waiting"] == "t")
-          $pInsertSqlite->bindValue(':waiting', 1, SQLITE3_INTEGER);
+        if ($line["wait_event"] != "")
+          $pInsertSqlite->bindValue(':wait_event', $line["wait_event"], SQLITE3_TEXT);
         else
-          $pInsertSqlite->bindValue(':waiting', 0, SQLITE3_INTEGER);
+          $pInsertSqlite->bindValue(':wait_event', $line["wait_event"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':state', $line["state"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':query', $line["query"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':threshold', QUERY_DURATION_THRESHOLD, SQLITE3_INTEGER);
@@ -146,7 +146,7 @@ while (true) {  // postgresql connect loop (for reconnections)
                 from pgqm 
                 where mtimestamp = $batchId 
                 and timediff > ".QUERY_DURATION_THRESHOLD." and
-                  (state = 'active' or state = 'idle in transaction' or waiting = 1) 
+                  (state = 'active' or state = 'idle in transaction' or wait_event <> '') 
                 order by timediff desc";
         $pSelMsg = $sqliteConnection->query($sql);
         
@@ -217,10 +217,10 @@ function connect_sqlite_database() {
   if ($sqliteConnection->querySingle("SELECT name FROM sqlite_master WHERE type='table' AND name='pgqm'") == null) {  
     print("  New database detected. Creating table...".PHP_EOL);
     $sqliteConnection->exec("CREATE TABLE pgqm (mtimestamp integer, datname text, pid integer, usename text, client_addr text, query_start integer, 
-      timediff integer, waiting integer, state text, query text, threshold integer, application_name text)");
+      timediff integer, wait_event text, state text, query text, threshold integer, application_name text)");
   }
   $pInsertSqlite = $sqliteConnection->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, threshold, application_name) 
-    VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :waiting, :state, :query, :threshold, :application_name)");
+    VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :wait_event, :state, :query, :threshold, :application_name)");
 }
 
 function check_sqlite_database_size() {
