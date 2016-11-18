@@ -11,7 +11,8 @@ ini_set('display_errors', 1);
 set_time_limit(0);
 date_default_timezone_set("America/Sao_Paulo");
 
-print("Starting PGQM (PostgreSQL Query Monitor)".PHP_EOL);
+define("VERSION", "1.0");
+print("Starting PGQM (PostgreSQL Query Monitor) - Version ".VERSION.PHP_EOL);
 
 $ini = parse_ini_file("pgqm.ini", true);
 $infoPostgresqlDb = $ini["postgresqlDb"];
@@ -72,6 +73,9 @@ while (true) {  // postgresql connect loop (for reconnections)
   $sqlMonitorNoFilter = str_replace("###filtroStall###", "", $sqlMonitor);
   $pSelFiltered = pg_prepare($pgConnection, "monitorFiltered", $sqlMonitorFiltered);
   $pSelNoFilter = pg_prepare($pgConnection, "monitorNoFilter", $sqlMonitorNoFilter);
+  if (!$pSelFiltered or !$pSelNoFilter) {
+    die("Error while preparing pg_stat_activity queries!".PHP_EOL);
+  }
 
   $batchId = time();
   $batchIdFromFirstDetectionOfTheDefect=$batchId;
@@ -115,6 +119,9 @@ while (true) {  // postgresql connect loop (for reconnections)
         $pInsertSqlite->bindValue(':threshold', QUERY_DURATION_THRESHOLD, SQLITE3_INTEGER);
         $pInsertSqlite->bindValue(':application_name', $line["application_name"], SQLITE3_TEXT);
         $pInsertSqlite->execute();
+        if (!$pInsertSqlite) {
+          die("Error while inserting activity in sqlite database!".PHP_EOL);
+        }
       }
 
       $crisisDuration= ($batchId-$batchIdFromFirstDetectionOfTheDefect);
