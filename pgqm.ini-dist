@@ -1,5 +1,5 @@
 [general]
-queryThreshold=8   ; any query duration above this threshold starts a crisis
+queryDurationThreshold=8   ; any query duration above this threshold starts a crisis
 queryCountAboveThreshold=3
 queryCountAboveThresholdAlert=12
 crisisDurationForAlert=15  ; for how long the crisis should stay active to start sending alerts

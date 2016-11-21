@@ -57,7 +57,7 @@ while (true) {  // postgresql connect loop (for reconnections)
     $sqlWhereWaitEvent = "wait_event is not null";
   } else {
     $sqlWaitEvent = "waiting as wait_event";
-    $sqlWhereWaitEvent = "waiting = false";
+    $sqlWhereWaitEvent = "waiting = true";
   }
 
   $stallFilter = "and (state = 'active' or $sqlWhereWaitEvent) and age(now(), query_start) > cast($1 as interval)";
