@@ -60,7 +60,6 @@ while (true) {  // postgresql connect loop (for reconnections)
     $sqlWhereWaitEvent = "waiting = false";
   }
 
-
   $stallFilter = "and (state = 'active' or $sqlWhereWaitEvent) and age(now(), query_start) > cast($1 as interval)";
   $sqlMonitor = "select 
       datname, 
@@ -232,7 +231,7 @@ function connect_sqlite_database() {
     $sqliteConnection->exec("CREATE TABLE pgqm (mtimestamp integer, datname text, pid integer, usename text, client_addr text, query_start integer, 
       timediff integer, wait_event text, state text, query text, threshold integer, application_name text)");
   }
-  $pInsertSqlite = $sqliteConnection->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, waiting, state, query, threshold, application_name) 
+  $pInsertSqlite = $sqliteConnection->prepare("INSERT INTO pgqm (mtimestamp, datname, pid, usename, client_addr, query_start, timediff, wait_event, state, query, threshold, application_name) 
     VALUES (:mtimestamp, :datname, :pid, :usename, :client_addr, :query_start, :timediff, :wait_event, :state, :query, :threshold, :application_name)");
 }
 
