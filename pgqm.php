@@ -51,8 +51,17 @@ while (true) {  // postgresql connect loop (for reconnections)
     continue; 
   }
 
+  $pgVersion = get_postgresql_server_version($pgConnection);
+  if (substr($pgVersion, 0, 3) == "9.6") {
+    $sqlWaitEvent = "wait_event";
+    $sqlWhereWaitEvent = "wait_event is not null";
+  } else {
+    $sqlWaitEvent = "waiting as wait_event";
+    $sqlWhereWaitEvent = "waiting = false";
+  }
 
-  $stallFilter = "and (state = 'active' or wait_event is not null) and age(now(), query_start) > cast($1 as interval)";
+
+  $stallFilter = "and (state = 'active' or $sqlWhereWaitEvent) and age(now(), query_start) > cast($1 as interval)";
   $sqlMonitor = "select 
       datname, 
       pid, 
@@ -60,7 +69,7 @@ while (true) {  // postgresql connect loop (for reconnections)
       usename, 
       extract(epoch from query_start) as query_start, 
       trunc(extract(epoch from age(now(), query_start))) as timediff, 
-      wait_event,
+      $sqlWaitEvent,
       state,
       query,
       application_name     
@@ -110,10 +119,7 @@ while (true) {  // postgresql connect loop (for reconnections)
         $pInsertSqlite->bindValue(':client_addr', $line["client_addr"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':query_start', $line["query_start"], SQLITE3_INTEGER);
         $pInsertSqlite->bindValue(':timediff', $line["timediff"], SQLITE3_INTEGER);
-        if ($line["wait_event"] != "")
-          $pInsertSqlite->bindValue(':wait_event', $line["wait_event"], SQLITE3_TEXT);
-        else
-          $pInsertSqlite->bindValue(':wait_event', $line["wait_event"], SQLITE3_TEXT);
+        $pInsertSqlite->bindValue(':wait_event', $line["wait_event"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':state', $line["state"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':query', $line["query"], SQLITE3_TEXT);
         $pInsertSqlite->bindValue(':threshold', QUERY_DURATION_THRESHOLD, SQLITE3_INTEGER);
@@ -258,5 +264,13 @@ function check_sqlite_database_size() {
   connect_sqlite_database();
 }
 
+function get_postgresql_server_version($pgConnection) {
+  $sql = "select version()";
+  $resVersion = pg_query($pgConnection, $sql);
+  $versionDetails = pg_fetch_result($resVersion, 0, "version");
+  $version = substr($versionDetails, strpos($versionDetails, " ") + 1); 
+  $version = substr($version, 0, strpos($version, " ")); 
+  return $version;
+}
 
 ?>
