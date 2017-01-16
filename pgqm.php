@@ -29,7 +29,7 @@ define("SQLITE_DB_MAX_SIZE", $ini["general"]["sqliteDbMaxSize"]);
 define("TAR_PATH", $ini["general"]["tarPath"]);
 
 $triggerServerList = @explode(",", $ini["trigger"]["servers"]);
-define("triggerCommand", $ini["trigger"]["command"]);
+define("TRIGGER_COMMAND", $ini["trigger"]["command"]);
 
 print("Config:".PHP_EOL);
 print_r($ini["general"]);

@@ -13,7 +13,7 @@ tarPath="/bin/tar"
 
 [trigger]
 servers=""  ; server list to trigger commands through SSH. comma separated list
-command="" ; comando a ser executado para cada servidor, podeem ser utilizadas as máscaras ###servidor### e 
+command="" ; command to be run on each server. you can use masks like  ###servidor### and ###identificador###
 
 [postgresqlDb]
 host=
