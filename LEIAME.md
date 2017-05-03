@@ -39,7 +39,7 @@ Alguns "conceitos" utilizados:
 Configurações:
 - _numeroDeQueriesAcimaDaTolerancia_: se o número de queries lentas ultrapassar este limite, então o PGQM exibirá *na tela* um aviso e gravará no bd sqlite um snapshot da pg_stat_activity.
 - _numeroDeQueriesAcimaDaToleranciaParaAlerta_: se o número de queries lentas ultrapassar este limite, então a condição 1 para alerta por e-mail é ativada
-- _duracaoDaCriseParaAlerta_: se existem queries lentas ativas há mais de <duracaoDaCriseParaAlerta> segundos, então condição 2 do alerta por e-mail é ativada
-- _periodoDeRepeticaoNormal_: a busca por queries lentas no pg_stat_activity ocorrerá a cada <periodoDeRepeticaoNormal> segundos
-- _periodoDeRepeticaoEmCrise_: se está em crise, a busca por queries lentas no pg_stat_activity ocorrerá a cada <periodoDeRepeticaoEmCrise> segundos
-- _tempoDeEsperaPorAcao_: o envio de alerta por e-mail ficara desativado por <tempoDeEsperaPorAcao> após o primeiro alerta (é usado para não lotar a caixa de e-mails)
+- _duracaoDaCriseParaAlerta_: se existem queries lentas ativas há mais de [duracaoDaCriseParaAlerta] segundos, então condição 2 do alerta por e-mail é ativada
+- _periodoDeRepeticaoNormal_: a busca por queries lentas no pg_stat_activity ocorrerá a cada [periodoDeRepeticaoNormal] segundos
+- _periodoDeRepeticaoEmCrise_: se está em crise, a busca por queries lentas no pg_stat_activity ocorrerá a cada [periodoDeRepeticaoEmCrise] segundos
+- _tempoDeEsperaPorAcao_: o envio de alerta por e-mail ficara desativado por [tempoDeEsperaPorAcao] após o primeiro alerta (é usado para não lotar a caixa de e-mails)
