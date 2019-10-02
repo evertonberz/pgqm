@@ -58,7 +58,7 @@ while (true) {  // postgresql connect loop (for reconnections)
   $pgMajorVersion = (int)substr($pgVersion, 0, strpos($pgVersion, "."));
   if (substr($pgVersion, 0, 3) == "9.6" or $pgMajorVersion >= 10) {
     $sqlWaitEvent = "wait_event";
-    $sqlWhereWaitEvent = "wait_event is not null";
+    $sqlWhereWaitEvent = "(wait_event is not null and wait_event <> 'ClientRead')";
   } else {
     $sqlWaitEvent = "waiting as wait_event";
     $sqlWhereWaitEvent = "waiting = true";
