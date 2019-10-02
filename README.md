@@ -1,17 +1,24 @@
-pgqm
+PGQM - PostgreSQL Query Monitor
 ====
 
-PostgreSQL Query Monitor
+Query monitoring tool for PostgreSQL. It sends alert mails in case the query duration exceeds some threshold.
 
-Licença: GPL v2.0
-
-Query monitoring script for PostgreSQL. It sends alert mails in case the query duration exceeds some threshold.
-
-This script monitors active slow queries based on some parameters.
-You can set the query duration and the slow queries count threshold.
-For instance, you want to list which queries were active in the database, at the time that 5 slow queries were running for more than 8 seconds.
+This script monitors active slow queries based on parameters such as query duration and  slow queries count. For instance, PGQM is useful if you want to list which queries were active in the database, at the time that 5 slow queries were running for more than 8 seconds.
 
 The script stores a pg_stat_activity snapshot in a SQLite database.
+
+## Installation
+
+### Docker
+
+1. Save pgqm.ini-dist to /pgqm-local-folder/pgqm.ini
+2. Configure pgqm.ini
+3. Run: 
+```bash
+docker run -v /pgqm-local-folder/:/pgqm-vol/ -it pgqm /pgqm-vol/pgqm.ini
+```
+
+### From source
 
 Dependencies:
 - php-cli
@@ -22,13 +29,12 @@ Dependencies:
 Tested in PHP 5 and PHP 7.
 
 Instructions:
-- rename pgqm.ini-dist to pgqm.ini
-- configure pgqm.ini
-- configure run.sh
-- run run.sh
+1. Rename pgqm.ini-dist to pgqm.ini
+2. Configure pgqm.ini
+3. Configure run.sh
+4. Run run.sh
 
-====
-About the INI file
+## Config file (pgqm.ini) explained
 
 Some concepts:
 - Slow query: a query that exceeds the specified time threshold (the duration is defined in the "threshold" directive)

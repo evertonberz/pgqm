@@ -1,6 +1,6 @@
 <?php
 /*
- * PGQM (PostgreSQL Query Monitor)
+ * PGQM - PostgreSQL Query Monitor
  * Author: Everton Luís Berz <everton.berz@gmail.com>
  *
  * Query text could be truncated due to track_activity_query_size parameter from PostgreSQL. Default is 1024.
@@ -14,7 +14,10 @@ date_default_timezone_set("America/Sao_Paulo");
 define("VERSION", "1.0");
 print("Starting PGQM (PostgreSQL Query Monitor) - Version ".VERSION.PHP_EOL);
 
-$ini = parse_ini_file("pgqm.ini", true);
+if (!isset($argv[1])) {
+  die("Usage: php pgqm.php path_to_ini_file".PHP_EOL);
+}
+$ini = parse_ini_file($argv[1], true) or die("Invalid ini file: $argv[1]");
 $infoPostgresqlDb = $ini["postgresqlDb"];
 define("QUERY_DURATION_THRESHOLD", $ini["general"]["queryDurationThreshold"]);
 define("QUERY_COUNT_ABOVE_THRESHOLD", $ini["general"]["queryCountAboveThreshold"]);
@@ -52,7 +55,8 @@ while (true) {  // postgresql connect loop (for reconnections)
   }
 
   $pgVersion = get_postgresql_server_version($pgConnection);
-  if (substr($pgVersion, 0, 3) == "9.6") {
+  $pgMajorVersion = (int)substr($pgVersion, 0, strpos($pgVersion, "."));
+  if (substr($pgVersion, 0, 3) == "9.6" or $pgMajorVersion >= 10) {
     $sqlWaitEvent = "wait_event";
     $sqlWhereWaitEvent = "wait_event is not null";
   } else {
@@ -75,10 +79,10 @@ while (true) {  // postgresql connect loop (for reconnections)
     from pg_stat_activity 
     where   
      pid <> pg_backend_pid() 
-     ###filtroStall### 
+     ###stallFilter### 
      order by query_start";
-  $sqlMonitorFiltered = str_replace("###filtroStall###", $stallFilter, $sqlMonitor);
-  $sqlMonitorNoFilter = str_replace("###filtroStall###", "", $sqlMonitor);
+  $sqlMonitorFiltered = str_replace("###stallFilter###", $stallFilter, $sqlMonitor);
+  $sqlMonitorNoFilter = str_replace("###stallFilter###", "", $sqlMonitor);
   $pSelFiltered = pg_prepare($pgConnection, "monitorFiltered", $sqlMonitorFiltered);
   $pSelNoFilter = pg_prepare($pgConnection, "monitorNoFilter", $sqlMonitorNoFilter);
   if (!$pSelFiltered or !$pSelNoFilter) {
