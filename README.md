@@ -15,7 +15,7 @@ The script stores a pg_stat_activity snapshot in a SQLite database.
 2. Configure pgqm.ini
 3. Run: 
 ```bash
-docker run -v /pgqm-local-folder/:/pgqm-vol/ -it evertonberz/pgqm:v1 /pgqm-vol/pgqm.ini
+docker run -v /pgqm-local-folder/:/pgqm-vol/ -it evertonberz/pgqm:latest /pgqm-vol/pgqm.ini
 ```
 
 ### From source
