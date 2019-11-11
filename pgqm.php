@@ -162,7 +162,7 @@ while (true) {  // postgresql connect loop (for reconnections)
                 from pgqm 
                 where mtimestamp = $batchId 
                 and timediff > ".QUERY_DURATION_THRESHOLD." and
-                  (state = 'active' or state = 'idle in transaction' or wait_event <> '') 
+                  (state = 'active' or wait_event <> 'ClientRead') 
                 order by timediff desc";
         $pSelMsg = $sqliteConnection->query($sql);
         
