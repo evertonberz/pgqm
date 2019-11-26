@@ -7,9 +7,12 @@ defaultIterationRange=3
 iterationRangeWhileCrisis=1  ; minimum 1
 waitTimeForAction=600
 alertMailRecipient=""
+alertMailSender=""
 sqliteDbPath="/var/lib/pgqm.db"
 sqliteDbMaxSize=999999999 ; em bytes
 tarPath="/bin/tar"
+smtpHost="smtp-relay.server.com"
+smtpPort=587
 
 [trigger]
 servers=""  ; server list to trigger commands through SSH. comma separated list
