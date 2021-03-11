@@ -166,9 +166,9 @@ while (true) {  // postgresql connect loop (for reconnections)
                     "Esta mensagem não será mais enviada nos próximos ".WAIT_TIME_FOR_ACTION." segundos.".PHP_EOL.
                     PHP_EOL.
                     "Estes são as queries mais lentas:".PHP_EOL.PHP_EOL.
-        "PID | Cliente | Application name | Duração | Query".PHP_EOL;
+        "PID | Cliente | User | Application name | Duração | Query".PHP_EOL;
 
-        $sql = "select query, client_addr, timediff, pid, application_name
+        $sql = "select query, client_addr, timediff, pid, application_name, usename 
                 from pgqm
                 where mtimestamp = $batchId
                 and timediff > ".QUERY_DURATION_THRESHOLD." and
@@ -177,7 +177,7 @@ while (true) {  // postgresql connect loop (for reconnections)
         $pSelMsg = $sqliteConnection->query($sql);
 
         while ($detailLine = $pSelMsg->fetchArray()) {
-          $message .= "$detailLine[pid] | $detailLine[client_addr] |$detailLine[application_name] | $detailLine[timediff] | ".substr($detailLine["query"], 0, 120).PHP_EOL;
+          $message .= "$detailLine[pid] | $detailLine[usename] | $detailLine[client_addr] | $detailLine[application_name] | $detailLine[timediff] | ".substr($detailLine["query"], 0, 120).PHP_EOL;
         }
         $message .= PHP_EOL."FIM!";
         print($message.PHP_EOL.PHP_EOL.PHP_EOL);
