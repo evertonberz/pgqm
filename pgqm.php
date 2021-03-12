@@ -166,7 +166,7 @@ while (true) {  // postgresql connect loop (for reconnections)
                     "Esta mensagem não será mais enviada nos próximos ".WAIT_TIME_FOR_ACTION." segundos.".PHP_EOL.
                     PHP_EOL.
                     "Estes são as queries mais lentas:".PHP_EOL.PHP_EOL.
-        "PID | Cliente | User | Application name | Duração | Query".PHP_EOL;
+        "PID | User | Cliente | Application name | Duração | Query".PHP_EOL;
 
         $sql = "select query, client_addr, timediff, pid, application_name, usename 
                 from pgqm
